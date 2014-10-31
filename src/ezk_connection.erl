@@ -197,12 +197,19 @@ get(ConnectionPId, Path, WatchOwner, WatchMessage) when is_pid(ConnectionPId) ->
                                                                      WatchMessage}}}).
 
 get_all_children(ConnectionPId, Path) ->
-    {ok, ChildrenIds} = ls(ConnectionPId, Path),
-    ChildPaths = case Path of
-        "/" -> lists:map(fun(ChildPath) -> Path ++ binary_to_list(ChildPath) end, ChildrenIds);
-        _ -> lists:map(fun(ChildPath) -> Path ++ "/" ++ binary_to_list(ChildPath) end, ChildrenIds)
-    end,
-    get_all_children(ConnectionPId, ChildPaths, []).
+    ChildrenIds = ls(ConnectionPId, Path),
+    case ChildrenIds of
+        {ok, []} ->
+            {ok, []};
+        {ok, Children} ->
+                ChildPaths = case Path of
+                    "/" -> lists:map(fun(ChildPath) -> Path ++ binary_to_list(ChildPath) end, Children);
+                    _ -> lists:map(fun(ChildPath) -> Path ++ "/" ++ binary_to_list(ChildPath) end, Children)
+                end,
+                {ok, get_all_children(ConnectionPId, ChildPaths, [])};
+        {error, Message} ->
+            {error, Message}
+    end.
 
 get_all_children(_ConnectionPId, [], Children) ->
     Children;
