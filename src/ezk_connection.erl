@@ -53,7 +53,7 @@
 %normal functions
 -export([  create/3,   create/4,   create/5,   delete/2,   set/3,   set_acl/3]).
 -export([n_create/5, n_create/6, n_create/7, n_delete/4, n_set/5, n_set_acl/5]).
--export([  get/2, get_all_children/2,   get_acl/2,   ls2/2,   ls/2]).
+-export([  get/2, get_children/2,   get_acl/2,   ls2/2,   ls/2]).
 -export([n_get/4, n_get_acl/4, n_ls2/4, n_ls/4]).
 %functions dealing with watches
 -export([ls/4, get/4, ls2/4]).
@@ -196,7 +196,7 @@ get(ConnectionPId, Path, WatchOwner, WatchMessage) when is_pid(ConnectionPId) ->
     call_and_catch(ConnectionPId, {watchcommand, {get, getw, Path, {data, WatchOwner,
                                                                      WatchMessage}}}).
 
-get_all_children(ConnectionPId, Path) ->
+get_children(ConnectionPId, Path) ->
     ChildrenIds = ls(ConnectionPId, Path),
     case ChildrenIds of
         {ok, []} ->
@@ -206,16 +206,16 @@ get_all_children(ConnectionPId, Path) ->
                     "/" -> lists:map(fun(ChildPath) -> Path ++ binary_to_list(ChildPath) end, Children);
                     _ -> lists:map(fun(ChildPath) -> Path ++ "/" ++ binary_to_list(ChildPath) end, Children)
                 end,
-                {ok, get_all_children(ConnectionPId, ChildPaths, [])};
+                {ok, get_children(ConnectionPId, ChildPaths, [])};
         {error, Message} ->
             {error, Message}
     end.
 
-get_all_children(_ConnectionPId, [], Children) ->
+get_children(_ConnectionPId, [], Children) ->
     Children;
-get_all_children(ConnectionPId, [ThisPath|Remaining], Children) ->
+get_children(ConnectionPId, [ThisPath|Remaining], Children) ->
     Child = get(ConnectionPId, ThisPath),
-    get_all_children(ConnectionPId, Remaining, [Child|Children]).
+    get_children(ConnectionPId, Remaining, [{ThisPath, Child}|Children]).
 
 %% Returns the actual Acls of a Node
 %% Reply = {[ACL],Parameters} with ACl and Parameters like above

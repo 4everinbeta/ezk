@@ -36,7 +36,7 @@
 %macros
 -export([delete_all/2, ensure_path/2]).
 
--export([get_all_children/2]).
+-export([get_children/2]).
 %infos
 -export([info_get_iterations/1,  help/0]).
 %Stop commands (forcing Client to choose a new random Server from List)
@@ -93,7 +93,7 @@
                   {ok, [ezk_ls2data()]} | {error, ezk_err()}.
 -spec get/2    :: (ezk_conpid(), ezk_path()) ->
                   {ok, {ezk_data(), ezk_getdata()}} | {error, ezk_err()}.
--spec get_all_children/2    :: (ezk_conpid(), ezk_path()) ->
+-spec get_children/2    :: (ezk_conpid(), ezk_path()) ->
                   {ok, [{ezk_data(), ezk_getdata()}]} | {error, ezk_err()}.
 -spec get/4    :: (ezk_conpid(), ezk_path(), ezk_watchowner(), ezk_watchmessage()) ->
                   {ok, {ezk_data(), ezk_getdata()}} | {error, ezk_err()}.
@@ -234,8 +234,8 @@ get(ConnectionPId, Path) ->
 n_get(ConnectionPId, Path, Receiver, Tag) ->
     ezk_connection:n_get(ConnectionPId, Path, Receiver, Tag).
 
-get_all_children(ConnectionPId, Path) ->
-    ezk_connection:get_all_children(ConnectionPId, Path).
+get_children(ConnectionPId, Path) ->
+    ezk_connection:get_children(ConnectionPId, Path).
 
 %% Like the one above but sets a datawatch to Path.
 %% If watch is triggered a Message M is send to the PId WatchOwner
