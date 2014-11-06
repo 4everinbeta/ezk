@@ -94,7 +94,7 @@
 -spec get/2    :: (ezk_conpid(), ezk_path()) ->
                   {ok, {ezk_data(), ezk_getdata()}} | {error, ezk_err()}.
 -spec get_children/2    :: (ezk_conpid(), ezk_path()) ->
-                  {ok, [{ezk_data(), ezk_getdata()}]} | {error, ezk_err()}.
+                  {ok, [{ezk_path(), {ezk_data(), ezk_getdata()}}]} | {error, ezk_err()}.
 -spec get/4    :: (ezk_conpid(), ezk_path(), ezk_watchowner(), ezk_watchmessage()) ->
                   {ok, {ezk_data(), ezk_getdata()}} | {error, ezk_err()}.
 -spec set/3    :: (ezk_conpid(), ezk_path(), ezk_data()) ->
