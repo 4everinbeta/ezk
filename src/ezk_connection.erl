@@ -198,26 +198,26 @@ get(ConnectionPId, Path, WatchOwner, WatchMessage) when is_pid(ConnectionPId) ->
 
 get_children(ConnectionPId, Path) ->
     ChildrenIds = ls(ConnectionPId, Path),
-    BinPath = list_to_binary(Path),
-    BinSlash = list_to_binary("/"), 
+    GetChildFun = fun(ChildPath) ->
+        case ChildPath of
+            "/" -> 
+                ThisPath = Path ++ ChildPath,
+                {ok, Child} = get(ConnectionPId,  ThisPath),
+                {ChildPath, Child};
+            _ -> 
+                ThisPath = Path ++ "/" ++ChildPath,
+                {ok, Child} = get(ConnectionPId, ThisPath),
+                {ChildPath, Child}
+        end
+    end,
     case ChildrenIds of
         {ok, []} ->
             {ok, []};
         {ok, Children} ->
-                ChildPaths = case Path of
-                    "/" -> lists:map(fun(ChildPath) -> {ChildPath, <<BinPath/binary,ChildPath/binary>>} end, Children);
-                    _ -> lists:map(fun(ChildPath) -> {ChildPath, <<BinPath/binary, BinSlash/binary, ChildPath/binary>>} end, Children)
-                end,
-                {ok, get_children(ConnectionPId, ChildPaths, [])};
+                lists:map(GetChildFun, Children);
         {error, Message} ->
             {error, Message}
     end.
-
-get_children(_ConnectionPId, [], Children) ->
-    Children;
-get_children(ConnectionPId, [{ChildId,ThisPath}|Remaining], Children) ->
-    {ok, Child} = get(ConnectionPId, binary_to_list(ThisPath)),
-    get_children(ConnectionPId, Remaining, [{ChildId, Child}|Children]).
 
 %% Returns the actual Acls of a Node
 %% Reply = {[ACL],Parameters} with ACl and Parameters like above
